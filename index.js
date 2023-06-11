@@ -1,36 +1,41 @@
-const { Server } = require("socket.io");
+const app = require('express')();
+const http = require('http').Server(app);
+const io = require('socket.io')(http);
+const port = process.env.PORT || 3000;
 
-module.exports = async (req, res) => {
-  if (req.method === "POST") {
-    const io = new Server();
-    const users = {};
+app.get('/', (req, res) => {
+  res.sendFile(__dirname + '/index.html');
+});
 
-    io.on("connection", (socket) => {
-      socket.on("changeNickname", (newNickname) => {
-        const oldNickname = users[socket.id];
-        users[socket.id] = newNickname;
-        io.emit("nicknameChanged", { oldNickname, newNickname });
-        io.emit("updateOnlineUsers", Object.values(users));
-      });
+// Store nicknames and online users
+const users = {};
 
-      socket.on("chatMessage", (message) => {
-        const nickname = users[socket.id] || "Anonymous";
-        io.emit("chatMessage", { nickname, message });
-      });
+io.on('connection', (socket) => {
+  // Change nickname
+  socket.on('changeNickname', (newNickname) => {
+    const oldNickname = users[socket.id];
+    users[socket.id] = newNickname;
+    io.emit('nicknameChanged', { oldNickname, newNickname });
+    io.emit('updateOnlineUsers', Object.values(users));
+  });
 
-      users[socket.id] = "Anonymous";
-      io.emit("updateOnlineUsers", Object.values(users));
+  // Handle chat messages
+  socket.on('chatMessage', (message) => {
+    const nickname = users[socket.id] || 'Anonymous';
+    io.emit('chatMessage', { nickname, message });
+  });
 
-      socket.on("disconnect", () => {
-        delete users[socket.id];
-        io.emit("updateOnlineUsers", Object.values(users));
-      });
-    });
+  // Add user to online users and update all clients
+  users[socket.id] = 'Anonymous';
+  io.emit('updateOnlineUsers', Object.values(users));
 
-    // Start the serverless WebSocket
-    io.serveHttp(req, res);
-  } else {
-    res.statusCode = 404;
-    res.end();
-  }
-};
+  // Remove user from online users on disconnect
+  socket.on('disconnect', () => {
+    delete users[socket.id];
+    io.emit('updateOnlineUsers', Object.values(users));
+  });
+});
+
+http.listen(port, () => {
+  console.log(`Socket.IO server running at http://localhost:${port}/`);
+});
