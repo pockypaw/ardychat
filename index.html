@@ -1,159 +1,24 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Socket.IO Chat</title>
+    <title>Socket.IO chat</title>
     <style>
-      body {
-        margin: 0;
-        padding-bottom: 3rem;
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-          Helvetica, Arial, sans-serif;
-      }
+      body { margin: 0; padding-bottom: 3rem; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
 
-      #form {
-        background: rgba(0, 0, 0, 0.15);
-        padding: 0.25rem;
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        display: flex;
-        height: 3rem;
-        box-sizing: border-box;
-        backdrop-filter: blur(10px);
-      }
-      #input {
-        border: none;
-        padding: 0 1rem;
-        flex-grow: 1;
-        border-radius: 2rem;
-        margin: 0.25rem;
-      }
-      #input:focus {
-        outline: none;
-      }
-      #form > button {
-        background: #333;
-        border: none;
-        padding: 0 1rem;
-        margin: 0.25rem;
-        border-radius: 3px;
-        outline: none;
-        color: #fff;
-      }
+      #form { background: rgba(0, 0, 0, 0.15); padding: 0.25rem; position: fixed; bottom: 0; left: 0; right: 0; display: flex; height: 3rem; box-sizing: border-box; backdrop-filter: blur(10px); }
+      #input { border: none; padding: 0 1rem; flex-grow: 1; border-radius: 2rem; margin: 0.25rem; }
+      #input:focus { outline: none; }
+      #form > button { background: #333; border: none; padding: 0 1rem; margin: 0.25rem; border-radius: 3px; outline: none; color: #fff; }
 
-      #messages {
-        list-style-type: none;
-        margin: 0;
-        padding: 0;
-      }
-      #messages > li {
-        padding: 0.5rem 1rem;
-      }
-      #messages > li:nth-child(odd) {
-        background: #d62626;
-      }
-
-      #sidebar {
-        background: #f0f0f0;
-        padding: 1rem;
-        width: 20%;
-        box-sizing: border-box;
-      }
-
-      #sidebar h2 {
-        margin: 0 0 1rem;
-        font-size: 1.2rem;
-      }
-
-      #online-users {
-        list-style-type: none;
-        margin: 0;
-        padding: 0;
-      }
-
-      #online-users li {
-        padding: 0.5rem 0;
-        font-size: 0.9rem;
-      }
+      #messages { list-style-type: none; margin: 0; padding: 0; }
+      #messages > li { padding: 0.5rem 1rem; }
+      #messages > li:nth-child(odd) { background: #efefef; }
     </style>
   </head>
   <body>
     <ul id="messages"></ul>
-
-    <div id="sidebar">
-      <h2>Online Users</h2>
-      <ul id="online-users"></ul>
-    </div>
-
     <form id="form" action="">
       <input id="input" autocomplete="off" /><button>Send</button>
     </form>
-    <script src="/socket.io/socket.io.js"></script>
-
-    <script>
-      var socket = io();
-
-      // Prompt the user for a nickname
-      var nickname = prompt("Please enter your nickname:");
-      socket.emit("changeNickname", nickname);
-
-      var messages = document.getElementById("messages");
-      var form = document.getElementById("form");
-      var input = document.getElementById("input");
-
-      form.addEventListener("submit", function (e) {
-        e.preventDefault();
-        if (input.value) {
-          socket.emit("chatMessage", input.value);
-          input.value = "";
-        }
-      });
-
-      socket.on("chatMessage", function (data) {
-        var item = document.createElement("li");
-        item.innerHTML =
-          '<span class="nickname" style="color: ' +
-          getRandomColor() +
-          ';">' +
-          data.nickname +
-          "</span>: " +
-          data.message;
-        messages.appendChild(item);
-        window.scrollTo(0, document.body.scrollHeight);
-      });
-
-      socket.on("nicknameChanged", function (data) {
-        var item = document.createElement("li");
-        item.textContent =
-          "*** " +
-          data.oldNickname +
-          " changed their nickname to " +
-          data.newNickname +
-          " ***";
-        messages.appendChild(item);
-        window.scrollTo(0, document.body.scrollHeight);
-      });
-
-      socket.on("updateOnlineUsers", function (onlineUsers) {
-        var onlineUsersList = document.getElementById("online-users");
-        onlineUsersList.innerHTML = "";
-
-        onlineUsers.forEach(function (user) {
-          var listItem = document.createElement("li");
-          listItem.textContent = user;
-          onlineUsersList.appendChild(listItem);
-        });
-      });
-
-      function getRandomColor() {
-        var letters = "0123456789ABCDEF";
-        var color = "#";
-        for (var i = 0; i < 6; i++) {
-          color += letters[Math.floor(Math.random() * 16)];
-        }
-        return color;
-      }
-    </script>
   </body>
 </html>
