@@ -1,12 +1,23 @@
 {
-    "version": 2,
-    "name": "chatapp",
-    "builds": [
-       { "src": "index.js", "use": "@vercel/node" },
-        { "src": "client.js", "use": "@vercel/node" }
-    ],
-    "routes": [
-       { "src": "/(.*)", "dest": "/index.js" },
-        { "src": "/(.*)", "dest": "/client.js" }
-    ]
- }
+  "version": 2,
+  "builds": [
+    {
+      "src": "index.js",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "index.js"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/"
+    }
+  ],
+  "env": {
+    "API_KEY": "your-api-key",
+    "ENVIRONMENT": "production"
+  }
+}
